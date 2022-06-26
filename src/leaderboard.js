@@ -13,9 +13,7 @@ const Leaderboard = () => {
       .then((data) => {
         setGames(data);
       });
-    console.log(selectedGame);
     if (selectedGame != null) {
-      console.log("set");
       fetch(
         "https://gamehub-api.enterosoft.com/search?game_id=" +
           selectedGame.id +
@@ -35,9 +33,8 @@ const Leaderboard = () => {
           setLeaderboard(error);
         });
     }
-  }, [selectedGame]);
+  }, [selectedGame, selectedSort]);
   const setFormData = (game, sort) => {
-    console.log(game.current.value);
     setSelectedGame(
       games[
         Object.keys(games).find((key) => games[key].name === game.current.value)
