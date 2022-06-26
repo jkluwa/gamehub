@@ -1,95 +1,96 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
+import LeaderboardForm from "./leaderboardForm";
 
 const Leaderboard = () => {
-    const [games, setGames] = useState([])
-    const [leaderboard, setLeaderboard] = useState()
-    let leaderboardJsx = ""
-    useEffect(() => {
-        
-
-        fetch("https://gamehub-api-dev.enterosoft.com/games")
-        .then(response => response.json())
-        .then(data => {
-            setGames(data)
-            
+  const [games, setGames] = useState([]);
+  const [selectedGame, setSelectedGame] = useState();
+  const [selectedSort, setSelectedSort] = useState();
+  const [leaderboard, setLeaderboard] = useState();
+  let leaderboardJsx = "";
+  useEffect(() => {
+    fetch("https://gamehub-api.enterosoft.com/games")
+      .then((response) => response.json())
+      .then((data) => {
+        setGames(data);
+      });
+    console.log(selectedGame);
+    if (selectedGame != null) {
+      console.log("set");
+      fetch(
+        "https://gamehub-api.enterosoft.com/search?game_id=" +
+          selectedGame.id +
+          "&order_by=" +
+          selectedSort
+      )
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("SOMETHING WENT WRONG");
+          }
+          return response.json();
         })
-    }, [])
-    const gameChangeHandler = (e) => {
-        const key = Object.keys(games).find(key => games[key].name === e.target.value)
-        fetch("https://gamehub-api-dev.enterosoft.com/search?game_id="+games[key].id+"&order_by=finish_time")
-        .then(response => 
-            {
-                if(!response.ok) {
-                    throw new Error("SOMETHING WENT WRONG")
-                }
-                return response.json()
-            })
-        .then(data => {
-            setLeaderboard(data)
+        .then((data) => {
+          setLeaderboard(data);
         })
-        .catch(error => {
-            setLeaderboard(error)
-        })
+        .catch((error) => {
+          setLeaderboard(error);
+        });
     }
-    
-    if(leaderboard) {
-        if(leaderboard instanceof Error) {
-            leaderboardJsx=<p>{leaderboard.message}</p>
-        } else {
-        leaderboardJsx = (<>
-            <table>
-            
-            {Object.keys(leaderboard).map((key, index)=> {
-                return (
-                    <tbody key={index}>
-                    <tr>
-                    <th>
-                        username
-                    </th>
-                    <th>
-                        finish time
-                    </th>
-                    <th>
-                        level id
-                    </th>
-                    </tr>
-                    <tr>
-                    <td>
-                        {leaderboard[key].user.nickname}
-                    </td>
-                    <td>
-                        {leaderboard[key].finish_time}
-                    </td>
-                    <td>
-                        {leaderboard[key].level_id}
-                    </td>
-                    </tr>
-                    </tbody>
-                    )
-                    
-            })}
-            
-            </table>
-        </>)}
-    }
-    return (
-        <>
-        <h1>Select game:</h1>
-        <form>
-            <select onChange={gameChangeHandler}>
-                {Object.values(games).map((key, index) => (
-                <option  key={index}>
-                    {key.name}
-                </option>
-                ))}
-            </select>
-        </form>
-        {leaderboardJsx}
-        </>
+  }, [selectedGame]);
+  const setFormData = (game, sort) => {
+    console.log(game.current.value);
+    setSelectedGame(
+      games[
+        Object.keys(games).find((key) => games[key].name === game.current.value)
+      ]
     );
-
-    
-    
-}
+    setSelectedSort(sort.current.selectedOptions[0].id);
+  };
+  if (leaderboard) {
+    if (leaderboard instanceof Error) {
+      leaderboardJsx = <p>{leaderboard.message}</p>;
+    } else {
+      leaderboardJsx = (
+        <>
+          <table>
+            <thead>
+              <tr>
+                <th>id</th>
+                <th>username</th>
+                <th>avatar</th>
+                <th>finish time</th>
+                <th>level id</th>
+              </tr>
+            </thead>
+            {Object.keys(leaderboard).map((key, index) => {
+              return (
+                <tbody key={index}>
+                  <tr>
+                    <td>{leaderboard[key].user.id}</td>
+                    <td>{leaderboard[key].user.nickname}</td>
+                    <td>
+                      <img
+                        alt='user avatar'
+                        height='25'
+                        src={leaderboard[key].user.profile_pic}
+                      />
+                    </td>
+                    <td>{leaderboard[key].finish_time}</td>
+                    <td>{leaderboard[key].level_id}</td>
+                  </tr>
+                </tbody>
+              );
+            })}
+          </table>
+        </>
+      );
+    }
+  }
+  return (
+    <>
+      <LeaderboardForm setFormData={setFormData} games={games} />
+      {leaderboardJsx}
+    </>
+  );
+};
 
 export default Leaderboard;
