@@ -4,7 +4,7 @@ import { GoogleLogin } from "react-google-login";
 const GoogleButton = () => {
   return (
     <GoogleLogin
-      clientId='949494480652-2ktsrfdkssgpdh621p4ba0ih48oij9mq.apps.googleusercontent.com'
+      clientId='238118534743-6otm74l2gsvums0ptapl9dufm752fp1b.apps.googleusercontent.com'
       cookiePolicy={"single_host_origin"}
       isSignedIn={true}
       onSuccess={() => {

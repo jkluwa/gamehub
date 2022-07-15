@@ -7,15 +7,28 @@ const Leaderboard = () => {
   const [selectedSort, setSelectedSort] = useState();
   const [leaderboard, setLeaderboard] = useState();
   let leaderboardJsx = "";
+  const handleCredentialResponse = (response) => {
+    console.log(response.credential);
+  };
   useEffect(() => {
-    fetch("https://gamehub-api.enterosoft.com/games")
+    /*global google*/
+    google.accounts.id.initialize({
+      client_id:
+        "238118534743-6otm74l2gsvums0ptapl9dufm752fp1b.apps.googleusercontent.com",
+      callback: handleCredentialResponse,
+    });
+    google.accounts.id.renderButton(document.getElementById("googleButton"), {
+      theme: "outline",
+      size: "large",
+    });
+    fetch("https://gamehub-api-dev.enterosoft.com/games")
       .then((response) => response.json())
       .then((data) => {
         setGames(data);
       });
     if (selectedGame != null) {
       fetch(
-        "https://gamehub-api.enterosoft.com/search?game_id=" +
+        "https://gamehub-api-dev.enterosoft.com/search?game_id=" +
           selectedGame.id +
           "&order_by=" +
           selectedSort
@@ -34,6 +47,7 @@ const Leaderboard = () => {
         });
     }
   }, [selectedGame, selectedSort]);
+
   const setFormData = (game, sort) => {
     setSelectedGame(
       games[
@@ -86,6 +100,7 @@ const Leaderboard = () => {
     <>
       <LeaderboardForm setFormData={setFormData} games={games} />
       {leaderboardJsx}
+      <div id='googleButton'></div>
     </>
   );
 };
